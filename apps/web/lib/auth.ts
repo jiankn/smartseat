@@ -11,6 +11,9 @@ const allowList = (process.env.DEV_LOGIN_ALLOW ?? 'owner@example.com')
 // 支持在 .env 写 DEV_LOGIN_ALLOW="*" 表示开发环境允许任意邮箱
 const devOpenLogin = (process.env.DEV_LOGIN_ALLOW ?? '').trim() === '*';
 
+// 允许在生产环境使用开发登录（仅用于测试，生产环境应使用真实 OAuth）
+const allowDevLoginInProd = process.env.ALLOW_DEV_LOGIN_IN_PROD === 'true';
+
 export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
   providers: [
@@ -22,12 +25,13 @@ export const authOptions: NextAuthOptions = {
         console.log('[auth] incoming email =', email);
         console.log('[auth] NODE_ENV =', process.env.NODE_ENV);
         console.log('[auth] allowList =', allowList);
+        console.log('[auth] allowDevLoginInProd =', allowDevLoginInProd);
 
         if (!email) return null;
 
-        // 生产环境禁用开发登录
-        if (process.env.NODE_ENV === 'production') {
-          console.log('[auth] blocked: production');
+        // 生产环境禁用开发登录（除非明确允许）
+        if (process.env.NODE_ENV === 'production' && !allowDevLoginInProd) {
+          console.log('[auth] blocked: production without ALLOW_DEV_LOGIN_IN_PROD');
           return null;
         }
 

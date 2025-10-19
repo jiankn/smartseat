@@ -18,8 +18,14 @@
 ```bash
 NEXTAUTH_URL=https://smart-seat-web.vercel.app
 NEXTAUTH_SECRET=XXmcTkDhvfdAe8qFT3EHRtCCjFXhq0pUPRw6eJ9bLOA=
-DEV_LOGIN_ALLOW=owner@example.com
+DEV_LOGIN_ALLOW=your-email@example.com  # 你的真实邮箱
+ALLOW_DEV_LOGIN_IN_PROD=true  # 允许在生产环境使用开发登录（仅用于测试）
 ```
+
+**⚠️ 安全警告**: 
+- `ALLOW_DEV_LOGIN_IN_PROD=true` 仅用于测试环境
+- 生产环境应该使用真实的 OAuth 提供商（Google、GitHub 等）
+- 记得把 `DEV_LOGIN_ALLOW` 改成你的实际邮箱地址
 
 #### Database (Supabase)
 ```bash

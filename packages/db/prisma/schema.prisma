@@ -1,0 +1,278 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")  // Pooler for runtime
+  directUrl = env("DIRECT_URL")    // Direct for migrations
+}
+
+// ---------- Enums ----------
+enum Role {
+  owner
+  editor
+  viewer
+}
+
+enum Plan {
+  free
+  pro
+  business
+}
+
+enum TableShape {
+  round
+  rect
+}
+
+enum ShareRole {
+  viewer
+  commenter
+}
+
+enum PaperSize {
+  A4
+  Letter
+}
+
+// ---------- Models ----------
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  locale    String?  @default("en")
+  tz        String?  @default("UTC")
+  createdAt DateTime @default(now())
+
+  ownedOrgs  Org[]       @relation("OrgOwner")
+  orgMembers OrgMember[]
+  comments   Comment[]
+  activities Activity[]
+}
+
+model Org {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String
+  createdAt DateTime @default(now())
+
+  owner        User          @relation("OrgOwner", fields: [ownerId], references: [id])
+  members      OrgMember[]
+  projects     Project[]
+  subscription Subscription?
+  quotas       Quota[]
+
+  @@index([ownerId])
+}
+
+model OrgMember {
+  orgId    String
+  userId   String
+  role     Role
+  joinedAt DateTime @default(now())
+
+  org  Org  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([orgId, userId])
+  @@index([userId])
+}
+
+model Project {
+  id        String    @id @default(cuid())
+  orgId     String
+  name      String
+  eventDate DateTime?
+  locale    String?   @default("en")
+  currency  String?   @default("USD")
+  paperSize PaperSize @default(A4)
+  archived  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  org             Org              @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  tables          Table[]
+  guests          Guest[]
+  constraints     Constraint[]
+  assignments     Assignment[]
+  seatAssignments SeatAssignment[]
+  snapshots       Snapshot[]
+  comments        Comment[]
+  activities      Activity[]
+  shareLinks      ShareLink[]
+
+  @@index([orgId])
+}
+
+model Table {
+  id        String     @id @default(cuid())
+  projectId String
+  name      String
+  shape     TableShape @default(round)
+  capacity  Int
+  pos       Json // { x, y, angle }
+  zone      String?
+  locked    Boolean    @default(false)
+
+  project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignments     Assignment[]
+  seatAssignments SeatAssignment[]
+
+  @@index([projectId])
+}
+
+model Guest {
+  id        String   @id @default(cuid())
+  projectId String
+  fullName  String
+  email     String?
+  phone     String?
+  group     String?
+  role      String?
+  priority  Int?     @default(0)
+  tags      String[]
+  notes     String?
+
+  project          Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignments      Assignment[]
+  seatAssignments  SeatAssignment[]
+
+  @@index([projectId])
+}
+
+model SeatAssignment {
+  id        String   @id @default(cuid())
+  projectId String
+  tableId   String
+  guestId   String
+  seatIndex Int
+  locked    Boolean  @default(false)
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  table     Table    @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  guest     Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, guestId])
+  @@unique([tableId, seatIndex])
+  @@index([projectId])
+}
+
+model Constraint {
+  id        String  @id @default(cuid())
+  projectId String
+  type      String
+  scope     Json?
+  hard      Boolean
+  weight    Int
+  enabled   Boolean @default(true)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Assignment {
+  id        String  @id @default(cuid())
+  projectId String
+  guestId   String
+  tableId   String
+  seatNo    Int
+  locked    Boolean @default(false)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  guest   Guest   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  table   Table   @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, tableId, seatNo])
+  @@unique([projectId, guestId])
+  @@index([projectId])
+  @@index([tableId])
+  @@index([guestId])
+}
+
+model Snapshot {
+  id        String   @id @default(cuid())
+  projectId String
+  planJson  Json
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  projectId String
+  anchor    Json?
+  authorId  String?
+  body      String
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author  User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([authorId])
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  projectId String
+  actorId   String?
+  type      String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  actor   User?   @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([actorId])
+}
+
+model ShareLink {
+  id        String    @id @default(cuid())
+  projectId String
+  role      ShareRole
+  expireAt  DateTime?
+  revoked   Boolean   @default(false)
+  token     String    @unique
+  createdAt DateTime  @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Lock {
+  resourceKey  String   @id
+  holderUserId String?
+  expireAt     DateTime
+}
+
+model Subscription {
+  orgId                String    @id
+  plan                 String    // 'pro', 'business', 'free'
+  status               String    // 'active' | 'trialing' | 'past_due' | 'canceled' ...
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  updatedAt            DateTime  @updatedAt
+
+  org Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Quota {
+  orgId  String
+  key    String
+  period String
+  used   Int    @default(0)
+  limit  Int    @default(0)
+
+  org Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@id([orgId, key, period])
+  @@index([orgId])
+}

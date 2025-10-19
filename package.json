@@ -1,0 +1,16 @@
+{
+  "name": "smartseat-monorepo",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:types": "pnpm --filter @smartseat/types build",
+    "dev:web": "pnpm --filter ./apps/web dev",
+    "start": "pnpm --filter @smartseat/types build && pnpm --filter ./apps/web dev"
+  },
+  "dependencies": {
+    "next-auth": "^4.24.11"
+  }
+}

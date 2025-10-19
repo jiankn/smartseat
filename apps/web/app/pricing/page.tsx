@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 async function post(url: string, body?: any) {
   const res = await fetch(url, {
@@ -19,7 +19,7 @@ async function post(url: string, body?: any) {
   return json.data; // 提取 data 字段
 }
 
-export default function PricingPage() {
+function PricingContent() {
   const qs = useSearchParams();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string|null>(null);
@@ -67,5 +67,13 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PricingContent />
+    </Suspense>
   );
 }

@@ -116,7 +116,7 @@ export default function PlannerPage() {
   // 选择/拖拽来宾并投放到席位
   function onDropGuestToSeat(guestId: string, tableId: string, seatIndex: number) {
     if (!data) return;
-    const cur = new Map(data.assignments.map(a => [`${a.tableId}:${a.seatIndex}`, a] as const));
+    const cur = new Map(data.assignments.map(a => [`${a.tableId}:${a.seatIndex}`, a]));
     const key = `${tableId}:${seatIndex}`;
     const existing = cur.get(key);
     // 查 guest 现在在哪

@@ -17,7 +17,7 @@ export default function Sidebar() {
       <ul className="space-y-2">
         {links.map((l) => (
           <li key={l.href}>
-            <Link href={l.href} className="block rounded px-3 py-2 hover:bg-white/10">
+            <Link href={l.href as any} className="block rounded px-3 py-2 hover:bg-white/10">
               {l.label}
             </Link>
           </li>

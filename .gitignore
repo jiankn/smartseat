@@ -1,6 +1,20 @@
-﻿node_modules
-dist
+﻿# Dependencies
+node_modules
+
+# Next.js build output
+**/.next
+**/out
+
+# Common build output
+**/dist
+
+# Local env files
+**/.env
+**/.env.local
+
+# Vercel local files
+.vercel
+
+# IDE
 .vscode
 .DS_Store
-.env*
-.vercel

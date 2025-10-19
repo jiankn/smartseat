@@ -1,0 +1,4 @@
+{
+  "buildCommand": "cd ../.. && pnpm -F @smartseat/types build && pnpm -F @smartseat/db build && pnpm -F @smartseat/utils build && cd apps/web && pnpm build",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile"
+}

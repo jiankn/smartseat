@@ -1,6 +1,0 @@
-{
-  "buildCommand": "pnpm -F @smartseat/types build && pnpm -F @smartseat/db build && pnpm -F @smartseat/utils build && pnpm -F @smartseat/web build",
-  "installCommand": "pnpm install --frozen-lockfile",
-  "framework": "nextjs",
-  "outputDirectory": "apps/web/.next"
-}

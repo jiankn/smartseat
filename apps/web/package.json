@@ -5,7 +5,7 @@
   "scripts": {
     "predev": "pnpm -w build:types && pnpm --filter @smartseat/db generate && pnpm --filter @smartseat/utils build",
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm -w build:types && pnpm -w -F @smartseat/db generate && pnpm -w -F @smartseat/utils build && next build",
     "start": "next start",
     "lint": "next lint"
   },

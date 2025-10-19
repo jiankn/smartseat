@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const s = event.data.object as Stripe.Checkout.Session;
-        const orgId = (s.client_reference_id as string) || (s.customer_details?.metadata?.orgId as string);
+        const orgId = s.client_reference_id as string | null;
         const customerId = (s.customer as string) ?? null;
         const subId = (s.subscription as string) ?? null;
         if (orgId) {
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
               status,
               stripeCustomerId: customerId,
               stripeSubscriptionId: subId,
-              currentPeriodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000) : null
+              currentPeriodEnd: (sub as any).current_period_end ? new Date((sub as any).current_period_end * 1000) : null
             },
             create: {
               orgId,
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
               status,
               stripeCustomerId: customerId,
               stripeSubscriptionId: subId,
-              currentPeriodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000) : null
+              currentPeriodEnd: (sub as any).current_period_end ? new Date((sub as any).current_period_end * 1000) : null
             }
           });
         }

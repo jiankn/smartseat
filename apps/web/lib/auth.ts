@@ -29,14 +29,16 @@ export const authOptions: NextAuthOptions = {
 
         if (!email) return null;
 
-        // 生产环境禁用开发登录（除非明确允许）
-        if (process.env.NODE_ENV === 'production' && !allowDevLoginInProd) {
-          console.log('[auth] blocked: production without ALLOW_DEV_LOGIN_IN_PROD');
+        const isProduction = process.env.NODE_ENV === 'production';
+        const emailAllowed = devOpenLogin || allowList.includes(email);
+
+        if (!emailAllowed) {
+          console.log('[auth] blocked: not in allowList');
           return null;
         }
 
-        if (!devOpenLogin && !allowList.includes(email)) {
-          console.log('[auth] blocked: not in allowList');
+        if (devOpenLogin && isProduction && !allowDevLoginInProd) {
+          console.log('[auth] blocked: devOpenLogin disabled in production');
           return null;
         }
 

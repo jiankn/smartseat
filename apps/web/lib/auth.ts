@@ -4,6 +4,7 @@ import prisma from '@smartseat/db';
 import { ensureDefaultOrgId } from './org';
 
 export const authOptions: NextAuthOptions = {
+  session: { strategy: 'jwt' },
   providers: [
     Credentials({
       name: 'Dev Email',
@@ -16,11 +17,10 @@ export const authOptions: NextAuthOptions = {
 
         let user = await prisma.user.findUnique({ where: { email } });
         if (!user) user = await prisma.user.create({ data: { email } });
-        return { id: user.id, email: user.email };
+        return { id: user.id, email: user.email } as any;
       },
     }),
   ],
-  session: { strategy: 'jwt' },
   callbacks: {
     async jwt({ token, user }) {
       const uid = (user as any)?.id ?? token.sub;

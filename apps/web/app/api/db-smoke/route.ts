@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import prisma from '@smartseat/db';
 import { type ApiResponse } from '@smartseat/types';
 

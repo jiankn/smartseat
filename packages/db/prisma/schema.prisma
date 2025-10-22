@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"     // ← 关键：用 Node-API 引擎，避免二进制不匹配
+  // 不要设置 binaryTargets（或至少包含 "native"）
 }
 
 datasource db {

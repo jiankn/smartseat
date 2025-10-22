@@ -36,6 +36,9 @@ importers:
         specifier: ^19.1.0
         version: 19.1.0(@types/node@20.19.22)
     devDependencies:
+      '@prisma/nextjs-monorepo-workaround-plugin':
+        specifier: ^6.17.1
+        version: 6.17.1
       '@types/node':
         specifier: ^20.11.0
         version: 20.19.22
@@ -447,6 +450,9 @@ packages:
 
   '@prisma/get-platform@5.22.0':
     resolution: {integrity: sha512-pHhpQdr1UPFpt+zFfnPazhulaZYCUqeIcPpJViYoq9R+D/yw4fjE+CtnsnKzPYm0ddUbeXUzjGVGIRVgPDCk4Q==}
+
+  '@prisma/nextjs-monorepo-workaround-plugin@6.17.1':
+    resolution: {integrity: sha512-67X3zAM2t+fSmwQUU3Jos5hkgP1d7OLfKC9SNQgFB/JZSS8u19KI8PZlvJ0ZCX4smrPuUySk4yJtVsCbdbenAg==}
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -2388,6 +2394,8 @@ snapshots:
   '@prisma/get-platform@5.22.0':
     dependencies:
       '@prisma/debug': 5.22.0
+
+  '@prisma/nextjs-monorepo-workaround-plugin@6.17.1': {}
 
   '@rtsao/scc@1.1.0': {}
 

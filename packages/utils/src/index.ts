@@ -20,10 +20,32 @@ export function err(code: string, message: string, status = 400, details?: unkno
 
 // ---------- Client helpers ----------
 export async function parseApi<T>(res: Response): Promise<T> {
-  const json = (await res.json()) as ApiResponse<T>;
-  if ((json as any).ok) return (json as any).data as T;
+  const raw = await res.text();
+  if (!raw) {
+    if (res.ok) {
+      return undefined as T;
+    }
+    throw Object.assign(new Error('EMPTY_RESPONSE'), {
+      code: 'EMPTY_RESPONSE',
+      status: res.status
+    });
+  }
 
-  const e = (json as any).error as ApiError | undefined;
+  let parsed: ApiResponse<T>;
+  try {
+    parsed = JSON.parse(raw) as ApiResponse<T>;
+  } catch (err) {
+    const snippet = raw.length > 200 ? `${raw.slice(0, 200)}…` : raw;
+    throw Object.assign(new Error('INVALID_JSON_RESPONSE'), {
+      code: 'INVALID_JSON',
+      status: res.status,
+      details: snippet
+    });
+  }
+
+  if ((parsed as any).ok) return (parsed as any).data as T;
+
+  const e = (parsed as any).error as ApiError | undefined;
   throw Object.assign(new Error(e?.message ?? 'API_ERROR'), {
     code: e?.code ?? 'API_ERROR',
     details: e?.details,
